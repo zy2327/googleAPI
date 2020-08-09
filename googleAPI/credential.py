@@ -13,18 +13,18 @@ from googleapiclient.http import MediaIoBaseDownload
 
 
 class GoogleCredential:
-    '''
+    """
     The base class of all the Google APIs.
     
     For official API guide of the credential class, visit
     https://google-auth.readthedocs.io/en/latest/reference/google.oauth2.credentials.html
-    '''
+    """
+
     @staticmethod
-    def credential(credential_path='',
-                   credential_scopes=None,
-                   token_prefix='',
-                   token_suffix=''):
-        '''
+    def credential(
+        credential_path="", credential_scopes=None, token_prefix="", token_suffix=""
+    ):
+        """
         Initialize the credential.
         
         If there is 'token.pickle' file in the `credential_path` and 
@@ -70,19 +70,22 @@ class GoogleCredential:
             
         Return:
           google.oauth2.credentials.Credentials
-        '''
+        """
         # If the last character of `credential_path` is not `/`, then append a `/`.
-        if credential_path != '' and credential_path[-1] != '/':
-            credential_path += '/'
-        token_file = credential_path + token_prefix + 'token' + token_suffix + '.pickle'
+        if credential_path != "" and credential_path[-1] != "/":
+            credential_path += "/"
+        token_file = credential_path + token_prefix + "token" + token_suffix + ".pickle"
 
         # Note: If modifying the scopes, delete the token file.
         if credential_scopes is None:
             raise Exception(
-                textwrap.dedent('''\
+                textwrap.dedent(
+                    """\
                 `credential_scopes` has to be provided.
                 Visit https://developers.google.com/identity/protocols/oauth2/scopes for details.\
-                '''))
+                """
+                )
+            )
         if isinstance(credential_scopes, str):
             credential_scopes = list(credential_scopes)
 
@@ -94,7 +97,7 @@ class GoogleCredential:
         # created automatically when the authorization flow completes for the first
         # time.
         if os.path.exists(token_file):
-            with open(token_file, 'rb') as token:
+            with open(token_file, "rb") as token:
                 creds = pickle.load(token)
 
         # If there are no (valid) credentials available, let the user log in.
@@ -103,17 +106,18 @@ class GoogleCredential:
                 creds.refresh(Request())
             else:
                 flow = InstalledAppFlow.from_client_secrets_file(
-                    credential_path + 'credentials.json', credential_scopes)
+                    credential_path + "credentials.json", credential_scopes
+                )
                 creds = flow.run_local_server(port=0)
             # Save the credentials for the next run
-            with open(token_file, 'wb') as token:
+            with open(token_file, "wb") as token:
                 pickle.dump(creds, token)
 
         return creds
 
     @staticmethod
     def credential_validation(creds):
-        '''
+        """
         Validate the token.
         Check token is valid and not expired.
         
@@ -125,18 +129,19 @@ class GoogleCredential:
           Boolean.
             True: Token is valid.
             False: Token is not valid.
-        '''
+        """
         if not isinstance(creds, google.oauth2.credentials.Credentials):
             raise Exception(
-                '`creds` is not type `google.oauth2.credentials.Credentials`')
+                "`creds` is not type `google.oauth2.credentials.Credentials`"
+            )
             return False
 
         if not creds.valid:
-            raise Exception('`creds` is not a valid credential.')
+            raise Exception("`creds` is not a valid credential.")
             return False
 
         if creds.expired:
-            raise Exception('`creds` is expired.')
+            raise Exception("`creds` is expired.")
             return False
 
         return True

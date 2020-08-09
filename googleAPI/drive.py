@@ -15,16 +15,19 @@ from googleAPI.credential import *  # Google API credential class
 
 
 class GoogleDrive(GoogleCredential):
-    '''
+    """
     The base class of the Google Drive API.
-    '''
-    def __init__(self,
-                 creds=None,
-                 credential_path='',
-                 credential_scopes=['https://www.googleapis.com/auth/drive'],
-                 token_prefix='GoogleDrive_',
-                 token_suffix=''):
-        '''
+    """
+
+    def __init__(
+        self,
+        creds=None,
+        credential_path="",
+        credential_scopes=["https://www.googleapis.com/auth/drive"],
+        token_prefix="GoogleDrive_",
+        token_suffix="",
+    ):
+        """
         Initialize the credential.
         
         If credential `creds` is provided, this method will use it directly 
@@ -47,15 +50,16 @@ class GoogleDrive(GoogleCredential):
             Prefix of token file. eg. '{token_prefix}token.pickle'.
           token_suffix: String, default ''
             Suffix of token file. eg. 'token{token_suffix}.pickle'.
-        '''
+        """
         if creds is not None and self.credential_validation(creds):
             self.creds = creds
         else:
-            self.creds = self.credential(credential_path, credential_scopes,
-                                         token_prefix, token_suffix)
+            self.creds = self.credential(
+                credential_path, credential_scopes, token_prefix, token_suffix
+            )
 
-    def search_file(self, file_name=None, query='', spaces='drive') -> dict:
-        '''
+    def search_file(self, file_name=None, query="", spaces="drive") -> dict:
+        """
         This function searches the file(s) and/or folder(s) inside 
         the Google Drive and returns the file ID.
         
@@ -83,11 +87,11 @@ class GoogleDrive(GoogleCredential):
           Dictionary.
           Key: File/folder name.
           Value: List of file/folder ID in case there are duplicate file names.
-        '''
+        """
         result = {}
 
         # Drive API for searching files in Google Drive
-        service = build('drive', 'v3', credentials=self.creds)
+        service = build("drive", "v3", credentials=self.creds)
 
         # If provided `file_name`, search files with exact name.
         if file_name is not None:
@@ -95,21 +99,26 @@ class GoogleDrive(GoogleCredential):
 
         page_token = None
         while True:
-            response = service.files().list(
-                q=query,
-                spaces='drive',
-                fields='nextPageToken, files(id, name)',
-                pageToken=page_token).execute()
-            for file in response.get('files', []):
-                result.setdefault(file.get('name'), []).append(file.get('id'))
-            page_token = response.get('nextPageToken', None)
+            response = (
+                service.files()
+                .list(
+                    q=query,
+                    spaces="drive",
+                    fields="nextPageToken, files(id, name)",
+                    pageToken=page_token,
+                )
+                .execute()
+            )
+            for file in response.get("files", []):
+                result.setdefault(file.get("name"), []).append(file.get("id"))
+            page_token = response.get("nextPageToken", None)
             if page_token is None:
                 break
 
         return result
 
     def get_file_metadata(self, file_id: str, fields=None) -> dict:
-        '''
+        """
         Get the file metadata including kind, name, mimeType, etc.
         
         For details of the return values, visit
@@ -129,20 +138,16 @@ class GoogleDrive(GoogleCredential):
             
         Return:
           metadata in dictionary
-        '''
+        """
         # Drive API
-        service = build('drive', 'v3', credentials=self.creds)
+        service = build("drive", "v3", credentials=self.creds)
 
         result = service.files().get(fileId=file_id, fields=fields).execute()
 
         return result
 
-    def download_file(self,
-                      file_id: str,
-                      mimeType=None,
-                      verbose=0,
-                      save_as=None):
-        '''
+    def download_file(self, file_id: str, mimeType=None, verbose=0, save_as=None):
+        """
         This function downloads the file by given file ID
         and returns a file pointer or saves it as a file.
         
@@ -181,27 +186,29 @@ class GoogleDrive(GoogleCredential):
             
         Return:
           None or file pointer.
-        '''
+        """
         # Drive API
-        service = build('drive', 'v3', credentials=self.creds)
+        service = build("drive", "v3", credentials=self.creds)
 
         # Use file metadata to check the file type
         file_metadata = self.get_file_metadata(file_id)
 
         # Download a Google Document
-        if 'google-apps' in file_metadata['mimeType']:
+        if "google-apps" in file_metadata["mimeType"]:
             # Check `mimeType` is provided
             if mimeType is None:
                 raise Exception(
-                    textwrap.dedent('''\
+                    textwrap.dedent(
+                        """\
                     This file ID belongs to a G Suite file.
                     Please provide a `mimeType`.
                     For the format you can choose, visit
                     https://developers.google.com/drive/api/v3/ref-export-formats\
-                    '''))
+                    """
+                    )
+                )
                 return
-            request = service.files().export_media(fileId=file_id,
-                                                   mimeType=mimeType)
+            request = service.files().export_media(fileId=file_id, mimeType=mimeType)
         # Download a file stored on Google Drive
         else:
             request = service.files().get_media(fileId=file_id)
@@ -212,9 +219,9 @@ class GoogleDrive(GoogleCredential):
         while done is False:
             status, done = downloader.next_chunk()
             if verbose >= 2:
-                print('Download {0:.2%}'.format(status.progress()))
+                print("Download {0:.2%}".format(status.progress()))
         if status == 1 and verbose >= 1:
-            print('File successfully downloaded.')
+            print("File successfully downloaded.")
 
         if save_as is None:
             return fh
@@ -224,31 +231,31 @@ class GoogleDrive(GoogleCredential):
             return
 
     def create_file(self):
-        '''
+        """
         Create a file in Google Drive.
         Implementation: TBD
         
         Official API guide:
         https://developers.google.com/drive/api/v3/create-file
-        '''
+        """
         pass
 
     def create_folder(self):
-        '''
+        """
         Create a folder in Google Drive.
         Implementation: TBD
         
         Official API guide:
         https://developers.google.com/drive/api/v3/folder
-        '''
+        """
         pass
 
     def move_file(self):
-        '''
+        """
         Move file between different folder.
         Implementation: TBD
         
         Official API guide:
         https://developers.google.com/drive/api/v3/folder#moving_files_between_folders
-        '''
+        """
         pass

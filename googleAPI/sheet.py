@@ -16,7 +16,7 @@ from googleAPI.drive import *
 
 
 class GoogleSheet(GoogleDrive):
-    '''
+    """
     The base class of Google Sheet API.
     
     It aims at dealing with the Google Sheet data extract and append.
@@ -28,14 +28,20 @@ class GoogleSheet(GoogleDrive):
     Terminology:
       Spreadsheet: The whole file. Same level as an Microsoft Excel file.
       Sheet: A tab inside the spreadsheet. Same as Excel sheet.
-    '''
-    def __init__(self,
-                 creds=None,
-                 credential_path='',
-                 credential_scopes=['https://www.googleapis.com/auth/drive'],
-                 token_prefix='GoogleDrive_',
-                 token_suffix=''):
-        '''
+      A1 notation:  A string like `Sheet1!A1:B2`, that refers to a group of 
+        cells in the spreadsheet, and is typically used in formulas.
+        https://developers.google.com/sheets/api/guides/concepts#a1_notation
+    """
+
+    def __init__(
+        self,
+        creds=None,
+        credential_path="",
+        credential_scopes=["https://www.googleapis.com/auth/drive"],
+        token_prefix="GoogleDrive_",
+        token_suffix="",
+    ):
+        """
         Initialize the credential.
         
         If credential `creds` is provided, this method will use it directly 
@@ -58,15 +64,16 @@ class GoogleSheet(GoogleDrive):
             Prefix of token file. eg. '{token_prefix}token.pickle'.
           token_suffix: String, default ''
             Suffix of token file. eg. 'token{token_suffix}.pickle'.
-        '''
+        """
         if creds is not None and self.credential_validation(creds):
             self.creds = creds
         else:
-            self.creds = self.credential(credential_path, credential_scopes,
-                                         token_prefix, token_suffix)
+            self.creds = self.credential(
+                credential_path, credential_scopes, token_prefix, token_suffix
+            )
 
     def create_spreadsheet(self, spreadsheet_name: str):
-        '''
+        """
         Creates a spreadsheet, returning the newly created spreadsheet's ID.
         
         Official API guide:
@@ -78,15 +85,18 @@ class GoogleSheet(GoogleDrive):
             
         Return:
           spreadsheet ID: String
-        '''
-        service = build('sheets', 'v4', credentials=self.creds)
-        spreadsheet = {'properties': {'title': spreadsheet_name}}
-        spreadsheet = service.spreadsheets().create(
-            body=spreadsheet, fields='spreadsheetId').execute()
-        return spreadsheet.get('spreadsheetId')
+        """
+        service = build("sheets", "v4", credentials=self.creds)
+        spreadsheet = {"properties": {"title": spreadsheet_name}}
+        spreadsheet = (
+            service.spreadsheets()
+            .create(body=spreadsheet, fields="spreadsheetId")
+            .execute()
+        )
+        return spreadsheet.get("spreadsheetId")
 
     def search_spreadsheet(self, spreadsheet_name: str):
-        '''
+        """
         Searche for the spreadsheet in Google Drive and return the spreadsheet ID.
         
         Since it is using Google Drive API, the scope must include reading
@@ -102,12 +112,12 @@ class GoogleSheet(GoogleDrive):
           Dictionary.
             Key: Spreadsheet name.
             Value: List of spreadsheet ID in case there are duplicate file names.
-        '''
+        """
         result = self.search_file(file_name=spreadsheet_name)
         return result
 
     def get_spreadsheet_property(self, spreadsheet_id: str):
-        '''
+        """
         Get spreadsheet property and sheet property.
         
         Spreadsheet property includes the title, locale, timeZone, defaultFormat, etc.
@@ -138,42 +148,41 @@ class GoogleSheet(GoogleDrive):
               sheetColCount: Dictionary, key: sheet name, value: sheet column count
                 The numbder of columns in sheet. Note that this is not the number 
                 of columns that contains data.It is the boundary of the sheet.
-        '''
-        service = build('sheets', 'v4', credentials=self.creds)
-        request = service.spreadsheets().get(spreadsheetId=spreadsheet_id,
-                                             includeGridData=False)
+        """
+        service = build("sheets", "v4", credentials=self.creds)
+        request = service.spreadsheets().get(
+            spreadsheetId=spreadsheet_id, includeGridData=False
+        )
         # Spreadsheet property
         spreadsheet_property = request.execute()
 
         # Sheet property
         sheetId = {
-            d['properties']['title']: d['properties']['sheetId']
-            for d in spreadsheet_property['sheets']
+            d["properties"]["title"]: d["properties"]["sheetId"]
+            for d in spreadsheet_property["sheets"]
         }
         sheetIndex = {
-            d['properties']['title']: d['properties']['index']
-            for d in spreadsheet_property['sheets']
+            d["properties"]["title"]: d["properties"]["index"]
+            for d in spreadsheet_property["sheets"]
         }
         sheetRowCount = {
-            d['properties']['title']:
-            d['properties']['gridProperties']['rowCount']
-            for d in spreadsheet_property['sheets']
+            d["properties"]["title"]: d["properties"]["gridProperties"]["rowCount"]
+            for d in spreadsheet_property["sheets"]
         }
         sheetColCount = {
-            d['properties']['title']:
-            d['properties']['gridProperties']['columnCount']
-            for d in spreadsheet_property['sheets']
+            d["properties"]["title"]: d["properties"]["gridProperties"]["columnCount"]
+            for d in spreadsheet_property["sheets"]
         }
         sheet_property = {
-            'sheetId': sheetId,
-            'sheetIndex': sheetIndex,
-            'sheetRowCount': sheetRowCount,
-            'sheetColCount': sheetColCount
+            "sheetId": sheetId,
+            "sheetIndex": sheetIndex,
+            "sheetRowCount": sheetRowCount,
+            "sheetColCount": sheetColCount,
         }
         return spreadsheet_property, sheet_property
 
-    def download_spreadsheet(self, spreadsheet_id: str, save_as=''):
-        '''
+    def download_spreadsheet(self, spreadsheet_id: str, save_as=""):
+        """
         Download the spreadsheet by given the spreadsheet ID
         and return a file pointer or save it as a file.
         
@@ -196,60 +205,80 @@ class GoogleSheet(GoogleDrive):
             '*.xlsx': Save as '*.xlsx'. Return None.
             '*.csv': Save as '*.csv'. Return None.
             '*.pdf': Save as '*.pdf'. Return None.
-        '''
-        spreadsheet_name = self.get_file_metadata(file_id=spreadsheet_id,
-                                                  fields='name')['name']
+        """
+        spreadsheet_name = self.get_file_metadata(
+            file_id=spreadsheet_id, fields="name"
+        )["name"]
         mimeType = {
-            'Excel':
-            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-            'Open Office sheet':
-            'application/x-vnd.oasis.opendocument.spreadsheet',
-            'PDF': 'application/pdf',
-            'CSV': 'text/csv'
+            "Excel": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            "Open Office sheet": "application/x-vnd.oasis.opendocument.spreadsheet",
+            "PDF": "application/pdf",
+            "CSV": "text/csv",
         }
 
-        if save_as == '':
-            result = self.download_file(file_id=spreadsheet_id,
-                                        mimeType=mimeType['Excel'])
-        elif save_as == 'Excel':
+        if save_as == "":
+            result = self.download_file(
+                file_id=spreadsheet_id, mimeType=mimeType["Excel"]
+            )
+        elif save_as == "Excel":
             result = self.download_file(
                 file_id=spreadsheet_id,
-                mimeType=mimeType['Excel'],
-                save_as='{0}.xlsx'.format(spreadsheet_name))
-        elif save_as == 'CSV':
+                mimeType=mimeType["Excel"],
+                save_as="{0}.xlsx".format(spreadsheet_name),
+            )
+        elif save_as == "CSV":
             result = self.download_file(
                 file_id=spreadsheet_id,
-                mimeType=mimeType['CSV'],
-                save_as='{0}.csv'.format(spreadsheet_name))
-        elif save_as == 'PDF':
+                mimeType=mimeType["CSV"],
+                save_as="{0}.csv".format(spreadsheet_name),
+            )
+        elif save_as == "PDF":
             result = self.download_file(
                 file_id=spreadsheet_id,
-                mimeType=mimeType['PDF'],
-                save_as='{0}.pdf'.format(spreadsheet_name))
-        elif save_as[-5:] == '.xlsx':
-            result = self.download_file(file_id=spreadsheet_id,
-                                        mimeType=mimeType['Excel'],
-                                        save_as=save_as)
-        elif save_as[-4:] == '.csv':
-            result = self.download_file(file_id=spreadsheet_id,
-                                        mimeType=mimeType['CSV'],
-                                        save_as=save_as)
-        elif save_as[-4:] == '.pdf':
-            result = self.download_file(file_id=spreadsheet_id,
-                                        mimeType=mimeType['PDF'],
-                                        save_as=save_as)
+                mimeType=mimeType["PDF"],
+                save_as="{0}.pdf".format(spreadsheet_name),
+            )
+        elif save_as[-5:] == ".xlsx":
+            result = self.download_file(
+                file_id=spreadsheet_id, mimeType=mimeType["Excel"], save_as=save_as
+            )
+        elif save_as[-4:] == ".csv":
+            result = self.download_file(
+                file_id=spreadsheet_id, mimeType=mimeType["CSV"], save_as=save_as
+            )
+        elif save_as[-4:] == ".pdf":
+            result = self.download_file(
+                file_id=spreadsheet_id, mimeType=mimeType["PDF"], save_as=save_as
+            )
         else:
             raise Exception(
-                textwrap.dedent('''\
+                textwrap.dedent(
+                    """\
                 {0} is not a supported file format.
                 Please check the `GoogleSheet.download_spreadsheet()` docstring.
                 Or you may want to use `GoogleDrive.download_file()` method.\
-                '''.format(save_as)))
+                """.format(
+                        save_as
+                    )
+                )
+            )
         return result
 
-    def clear_sheet(self, spreadsheet_id: str, range_):
-        '''
-        Clears values from a spreadsheet
+    def get_values(self, spreadsheet_id: str, range_):
+        """
+      Get a single value, a range of values, and several ranges of values.
+
+      Use `GoogleSheet.download_spreadsheet()` if you want to get the
+      entire spreadsheet.
+      
+      Args:
+        
+      """
+        pass
+
+    def clear_values(self, spreadsheet_id: str, range_):
+        """
+        Clear values from a spreadsheet.
         
         Only values are cleared -- all other properties of 
         the cell (such as formatting, data validation, etc..) are kept.
@@ -258,21 +287,68 @@ class GoogleSheet(GoogleDrive):
         https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets.values/clear
         
         Args:
-          spreadsheet_id: String
-        '''
-        pass
-    
+          spreadsheet_id: String\
+          range_: String, A1 notation
+
+        Return:
+          Dictionary, cleared range
+          {
+            "spreadsheetId": string,
+            "clearedRange": string
+          }
+        """
+        service = build("sheets", "v4", credentials=self.creds)
+
+        # The A1 notation of the values to clear.
+        range_ = range_
+        clear_values_request_body = {
+            # TODO: Add desired entries to the request body.
+        }
+
+        request = (
+            service.spreadsheets()
+            .values()
+            .clear(
+                spreadsheetId=spreadsheet_id,
+                range=range_,
+                body=clear_values_request_body,
+            )
+        )
+        result = request.execute()
+        return result
+
+    def clear_sheet(self, spreadsheet_id: str, sheet_name: str):
+        """
+        Clear the entire sheet.
+        
+        Only values are cleared -- all other properties of 
+        the cell (such as formatting, data validation, etc..) are kept.
+
+        Args:
+          spreadsheet_id
+          sheet_name
+
+        Return:
+          Dictionary, cleared range
+          {
+            "spreadsheetId": string,
+            "clearedRange": string
+          }
+        """
+        result = self.clear_values(spreadsheet_id, "'{0}'".format(sheet_name))
+        return result
+
     def update_value(self):
-        '''
+        """
         Update the value on cell basis.
         
         Official API guide:
         https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets.values/batchUpdate
-        '''
+        """
         pass
-    
+
     def update_column_format(self):
-        '''
+        """
         Update the column format.
         
         Supported format: date, number, currency
@@ -281,5 +357,5 @@ class GoogleSheet(GoogleDrive):
         https://developers.google.com/sheets/api/samples/formatting
         https://developers.google.com/sheets/api/guides/formats
         https://developers.google.com/sheets/api/guides/batchupdate
-        '''
+        """
         pass

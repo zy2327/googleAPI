@@ -2,7 +2,7 @@
 
 __Not yet released.__
 
-This is a package that handles all the work with Google services, including Google Drive, Google Sheet, and Gmail. It is a high-level interface of the [Google API](https://developers.google.com/apis-explorer). The downside of using the official Google API directly is that its documentation is written in Python 2.x, making it hard to follow.
+This is a python package that handles all the work with Google services, including Google Drive, Google Sheet, and Gmail. It is a high-level interface of the [Google API](https://developers.google.com/apis-explorer). The downside of using the official Google API directly is that its documentation is written in Python 2.x, making it hard to follow.
 
 To use the google API, the first step is to get the 'credentials.json'. The most easiest way would be visiting the [Google Drive API Quickstart](https://developers.google.com/drive/api/v3/quickstart/go) and click the `Enable the Drive API` button in the "Step 1: Turn on the Drive API" section. Then voliá, there you go! No need to deal with the project, service account, etc.
 

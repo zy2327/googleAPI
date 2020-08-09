@@ -25,16 +25,19 @@ from googleAPI.credential import *  # Google API credential class
 
 
 class Gmail(GoogleCredential):
-    '''
+    """
     The base class of the Gmail API.
-    '''
-    def __init__(self,
-                 creds=None,
-                 credential_path='',
-                 credential_scopes=['https://mail.google.com/'],
-                 token_prefix='Gmail_',
-                 token_suffix=''):
-        '''
+    """
+
+    def __init__(
+        self,
+        creds=None,
+        credential_path="",
+        credential_scopes=["https://mail.google.com/"],
+        token_prefix="Gmail_",
+        token_suffix="",
+    ):
+        """
         Initialize the credential.
         
         If credential `creds` is provided, this method will use it directly
@@ -57,16 +60,17 @@ class Gmail(GoogleCredential):
             Prefix of token file. eg. '{token_prefix}token.pickle'.
           token_suffix: String, default ''
             Suffix of token file. eg. 'token{token_suffix}.pickle'.
-        '''
+        """
         if creds is not None and self.credential_validation(creds):
             self.creds = creds
         else:
-            self.creds = self.credential(credential_path, credential_scopes,
-                                         token_prefix, token_suffix)
+            self.creds = self.credential(
+                credential_path, credential_scopes, token_prefix, token_suffix
+            )
 
     @staticmethod
     def create_message(sender, to, subject, message_text):
-        '''
+        """
         Create a message for an email.
 
           Args:
@@ -81,20 +85,17 @@ class Gmail(GoogleCredential):
 
           Returns:
             An object containing a base64url encoded email object.
-        '''
+        """
         message = MIMEText(message_text)
-        message['to'] = to
-        message['from'] = sender
-        message['subject'] = subject
+        message["to"] = to
+        message["from"] = sender
+        message["subject"] = subject
 
-        return {
-            'raw': base64.urlsafe_b64encode(message.as_bytes()).decode('utf-8')
-        }
+        return {"raw": base64.urlsafe_b64encode(message.as_bytes()).decode("utf-8")}
 
     @staticmethod
-    def create_message_with_attachment(sender, to, subject, message_text,
-                                       files):
-        '''
+    def create_message_with_attachment(sender, to, subject, message_text, files):
+        """
         Create a message for an email with attachment(s).
 
         Args:
@@ -121,49 +122,44 @@ class Gmail(GoogleCredential):
 
         Returns:
           An object containing a base64url encoded email object.
-        '''
+        """
         message = MIMEMultipart()
-        message['to'] = ", ".join(to)
-        message['from'] = sender
-        message['subject'] = subject
+        message["to"] = ", ".join(to)
+        message["from"] = sender
+        message["subject"] = subject
 
         message.attach(MIMEText(message_text))
 
         # Convert `files` into the same dictionary format
         if isinstance(files, str):
-            files = {'': [files]}
+            files = {"": [files]}
         elif isinstance(files, list):
-            files = {'': files}
+            files = {"": files}
 
-        # TO DO: Check Dictionary structure
+        # TODO: Check Dictionary structure
 
         for path in files:
             for file in files:
-                msg = MIMEApplication(
-                    open(path + file, 'rb').read(), 'octet-stream')
-                msg.add_header('Content-Disposition',
-                               'attachment',
-                               filename=file)
+                msg = MIMEApplication(open(path + file, "rb").read(), "octet-stream")
+                msg.add_header("Content-Disposition", "attachment", filename=file)
                 message.attach(msg)
 
-        return {
-            'raw': base64.urlsafe_b64encode(message.as_bytes()).decode('utf-8')
-        }
+        return {"raw": base64.urlsafe_b64encode(message.as_bytes()).decode("utf-8")}
 
     def create_draft(self):
-        '''
+        """
         Create an email draft.
         
         Drafts represent unsent messages with the `DRAFT` system label applied.
         
         Official API guide:
         https://developers.google.com/gmail/api/guides/drafts
-        '''
+        """
 
         pass
 
     def send_email(self, sender, to, subject, message_text, files=None):
-        '''
+        """
         Send email with/without attachment.
         
         If `files` is None, it will generate the message
@@ -200,16 +196,16 @@ class Gmail(GoogleCredential):
           
         Return:
           Sent Message
-        '''
-        service = build('gmail', 'v1', credentials=self.creds)
+        """
+        service = build("gmail", "v1", credentials=self.creds)
 
         if files is None:
             message = self.create_message(sender, to, subject, message_text)
         else:
             message = self.create_message_with_attachment(
-                sender, to, subject, message_text, files)
+                sender, to, subject, message_text, files
+            )
 
-        result = service.users().messages().send(userId=sender,
-                                                 body=message).execute()
+        result = service.users().messages().send(userId=sender, body=message).execute()
 
         return result
