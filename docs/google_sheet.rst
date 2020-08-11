@@ -14,5 +14,9 @@ The spreadsheet ID is a string containing letters, numbers, and some special cha
   
   /spreadsheets/d/([a-zA-Z0-9-_]+)
 
-    
+**Sheet**: A tab inside the spreadsheet. Same as Excel sheet.
+
+
+
+
 For more information, refer to the `Google Sheet concept<https://developers.google.com/sheets/api/guides/concepts>`. 

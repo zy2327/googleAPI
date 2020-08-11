@@ -11,7 +11,7 @@ This package utilize [Drive API v3](https://developers.google.com/drive/api/v3/r
 
 ## Installation
 
-`pip install googleapi`
+`pip install googleAPI`
 
 ## Dependencies
 

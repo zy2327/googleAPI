@@ -1,2 +1,6 @@
 include versioneer.py
 include googleAPI/_version.py
+include LICENSE
+include requirements.txt
+graft googleAPI
+recursive-exclude * *.py[co]

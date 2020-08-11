@@ -1,17 +1,3 @@
-from __future__ import print_function
-import io
-import warnings
-import textwrap
-from pathlib import Path
-import pickle
-import os.path
-import google
-from googleapiclient.discovery import build
-from google_auth_oauthlib.flow import InstalledAppFlow
-from google.auth.transport.requests import Request
-from googleapiclient.http import MediaIoBaseDownload
-
-import pandas as pd
 from googleAPI.drive import *
 
 
@@ -205,6 +191,9 @@ class GoogleSheet(GoogleDrive):
             '*.xlsx': Save as '*.xlsx'. Return None.
             '*.csv': Save as '*.csv'. Return None.
             '*.pdf': Save as '*.pdf'. Return None.
+
+        Return:
+          None or file pointer depending on the `save_as`
         """
         spreadsheet_name = self.get_file_metadata(
             file_id=spreadsheet_id, fields="name"
@@ -264,17 +253,77 @@ class GoogleSheet(GoogleDrive):
             )
         return result
 
-    def get_values(self, spreadsheet_id: str, range_):
+    def get_values(
+        self,
+        spreadsheet_id: str,
+        range_,
+        value_render_option=None,
+        date_time_render_option=None,
+    ):
         """
-      Get a single value, a range of values, and several ranges of values.
-
-      Use `GoogleSheet.download_spreadsheet()` if you want to get the
-      entire spreadsheet.
-      
-      Args:
+        Get a single value, a range of values, and several ranges of values.
         
-      """
-        pass
+        Use `GoogleSheet.download_spreadsheet()` if you want to get the
+        entire spreadsheet.
+        
+        Official API guide:
+        For single range:
+        https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets.values/get
+        For multiple ranges:
+        https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets.values/batchGet
+        
+        Example:
+          Get the entire sheet of `Sheet 1`.
+          >>> gs.get_values(spreadsheet_id, "'Sheet 1'")
+
+          Get the value of cell `A5` in `Sheet 1`.
+          >>> gs.get_values(spreadsheet_id, "'Sheet 1'!A5")
+
+        Args:
+          spreadsheet_id: String
+          range_: String or List of strings in A1 notation
+            String: A single sheet, A single range
+            List of strings: Several ranges
+          value_render_option: String, default None
+            How values should be represented in the output.
+            The default render option is `ValueRenderOption.FORMATTED_VALUE`.
+            Details:
+            https://developers.google.com/sheets/api/reference/rest/v4/ValueRenderOption
+          date_time_render_option: String, default None
+            How dates, times, and durations should be represented in the output.
+            Details:
+            https://developers.google.com/sheets/api/reference/rest/v4/ValueRenderOption
+
+        Return:
+          ValueRange in Dictionary
+          Details:
+          https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets.values#resource:-valuerange
+        """
+        service = build("sheets", "v4", credentials=self.creds)
+
+        # How values should be represented in the output.
+        # The default render option is ValueRenderOption.FORMATTED_VALUE.
+        value_render_option = value_render_option
+
+        # How dates, times, and durations should be represented in the output.
+        # This is ignored if value_render_option is
+        # FORMATTED_VALUE.
+        # The default dateTime render option is [DateTimeRenderOption.SERIAL_NUMBER].
+        date_time_render_option = date_time_render_option
+
+        request = (
+            service.spreadsheets()
+            .values()
+            .batchGet(
+                spreadsheetId=spreadsheet_id,
+                ranges=range_,
+                valueRenderOption=value_render_option,
+                dateTimeRenderOption=date_time_render_option,
+            )
+        )
+        result = request.execute()
+
+        return result
 
     def clear_values(self, spreadsheet_id: str, range_):
         """
@@ -287,7 +336,7 @@ class GoogleSheet(GoogleDrive):
         https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets.values/clear
         
         Args:
-          spreadsheet_id: String\
+          spreadsheet_id: String
           range_: String, A1 notation
 
         Return:
@@ -299,53 +348,76 @@ class GoogleSheet(GoogleDrive):
         """
         service = build("sheets", "v4", credentials=self.creds)
 
-        # The A1 notation of the values to clear.
-        range_ = range_
-        clear_values_request_body = {
+        batch_clear_values_request_body = {
+            # The ranges to clear, in A1 notation.
+            "ranges": range_
             # TODO: Add desired entries to the request body.
         }
 
         request = (
             service.spreadsheets()
             .values()
-            .clear(
-                spreadsheetId=spreadsheet_id,
-                range=range_,
-                body=clear_values_request_body,
+            .batchClear(
+                spreadsheetId=spreadsheet_id, body=batch_clear_values_request_body
             )
         )
         result = request.execute()
+
         return result
 
-    def clear_sheet(self, spreadsheet_id: str, sheet_name: str):
+    def update_value(self, spreadsheet_id: str, data, value_input_option="RAW"):
         """
-        Clear the entire sheet.
-        
-        Only values are cleared -- all other properties of 
-        the cell (such as formatting, data validation, etc..) are kept.
+        Sets values in a range of a spreadsheet.
+
+        Official API guide:
+        https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets.values/update
 
         Args:
-          spreadsheet_id
-          sheet_name
-
+          spreadsheet_id: String
+          data: ValueRange in Dictionary
+            {
+              "range": string,
+              "majorDimension": enum (Dimension),
+              "values": [
+                array
+              ]
+            }
+            Details:
+            https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets.values#ValueRange
+            
         Return:
-          Dictionary, cleared range
+          Dictionary in structure:
           {
             "spreadsheetId": string,
-            "clearedRange": string
+            "totalUpdatedRows": integer,
+            "totalUpdatedColumns": integer,
+            "totalUpdatedCells": integer,
+            "totalUpdatedSheets": integer,
+            "responses": [
+              {
+                object (UpdateValuesResponse)
+              }
+            ]
           }
         """
-        result = self.clear_values(spreadsheet_id, "'{0}'".format(sheet_name))
-        return result
+        service = build("sheets", "v4", credentials=self.creds)
+        batch_update_values_request_body = {
+            # How the input data should be interpreted.
+            "value_input_option": value_input_option,  # 'USER_ENTERED'
+            # The new values to apply to the spreadsheet.
+            "data": data,
+        }
 
-    def update_value(self):
-        """
-        Update the value on cell basis.
-        
-        Official API guide:
-        https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets.values/batchUpdate
-        """
-        pass
+        request = (
+            service.spreadsheets()
+            .values()
+            .batchUpdate(
+                spreadsheetId=spreadsheet_id, body=batch_update_values_request_body
+            )
+        )
+        result = request.execute()
+
+        return result
 
     def update_column_format(self):
         """
