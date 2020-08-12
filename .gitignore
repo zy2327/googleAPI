@@ -27,3 +27,4 @@
 *.png
 *.mp4
 **/test.ipynb
+**/PN.py

@@ -365,7 +365,7 @@ class GoogleSheet(GoogleDrive):
 
         return result
 
-    def update_value(self, spreadsheet_id: str, data, value_input_option="RAW"):
+    def update_values(self, spreadsheet_id: str, data, value_input_option="RAW"):
         """
         Sets values in a range of a spreadsheet.
 
