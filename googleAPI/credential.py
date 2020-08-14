@@ -24,8 +24,7 @@ class GoogleCredential:
     def credential(
         credential_path="", credential_scopes=None, token_prefix="", token_suffix=""
     ):
-        """
-        Initialize the credential.
+        """Initialize the Google credential.
         
         If there is 'token.pickle' file in the `credential_path` and 
         the token is valid, then it would load the pickle file.
@@ -117,8 +116,8 @@ class GoogleCredential:
 
     @staticmethod
     def credential_validation(creds):
-        """
-        Validate the token.
+        """Validate the token.
+        
         Check token is valid and not expired.
         
         Args:

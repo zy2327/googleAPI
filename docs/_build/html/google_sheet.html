@@ -34,15 +34,326 @@
             
   <div class="section" id="googlesheet">
 <h1>GoogleSheet<a class="headerlink" href="#googlesheet" title="Permalink to this headline">¶</a></h1>
+<p><code class="docutils literal notranslate"><span class="pre">GoogleSheet()</span></code> is a child class of <code class="docutils literal notranslate"><span class="pre">GoogleDrive()</span></code>.
+It enables you to read a specific range of cells, download the spreadsheet,
+and upload the values in the spreadsheet.</p>
 <div class="section" id="terminology">
 <h2>Terminology<a class="headerlink" href="#terminology" title="Permalink to this headline">¶</a></h2>
 <p><strong>Spreadsheet</strong>: The whole file. Same level as an Microsoft Excel file.</p>
-<p>Every API method requires a <code class="docutils literal notranslate"><span class="pre">spreadsheetId</span></code> parameter which is used to identify which spreadsheet is to be accessed or altered.</p>
-<p>The spreadsheet ID is a string containing letters, numbers, and some special characters. The following regular expression can be used to extract the spreadsheet ID from a Google Sheets URL:</p>
+<p>Every API method requires a <code class="docutils literal notranslate"><span class="pre">spreadsheetId</span></code> parameter which is used
+to identify which spreadsheet is to be accessed or altered.</p>
+<p>The spreadsheet ID is a string containing letters, numbers,
+and some special characters. The following regular expression can be
+used to extract the spreadsheet ID from a Google Sheets URL:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="o">/</span><span class="n">spreadsheets</span><span class="o">/</span><span class="n">d</span><span class="o">/</span><span class="p">([</span><span class="n">a</span><span class="o">-</span><span class="n">zA</span><span class="o">-</span><span class="n">Z0</span><span class="o">-</span><span class="mi">9</span><span class="o">-</span><span class="n">_</span><span class="p">]</span><span class="o">+</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>For more information, refer to the <cite>Google Sheet concept&lt;https://developers.google.com/sheets/api/guides/concepts&gt;</cite>.</p>
+<p><strong>Sheet</strong>: A tab inside the spreadsheet. Same as Excel sheet.</p>
+<p><strong>A1 Notation</strong>:</p>
+<p>Some API methods require a range in A1 notation.
+This is a string like <code class="docutils literal notranslate"><span class="pre">Sheet1!A1:B2</span></code>, that refers to a group of cells
+in the spreadsheet, and is typically used in formulas.
+For example, valid ranges are:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">Sheet1!A1:B2</span></code> refers to the first two cells in the top two rows of Sheet1.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Sheet1!A:A</span></code> refers to all the cells in the first column of Sheet1.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Sheet1!1:2</span></code> refers to the all the cells in the first two rows of Sheet1.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Sheet1!A5:A</span></code> refers to all the cells of the first column of Sheet 1, from row 5 onward.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">A1:B2</span></code> refers to the first two cells in the top two rows of the first visible sheet.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Sheet1</span></code> refers to all the cells in Sheet1.</p></li>
+</ul>
+<p>Named ranges are also supported. When a named range conflicts with a sheet's name, the named range is preferred.</p>
+<p>If the sheet name has spaces or starts with a bracket, surround the sheet name with single quotes (<code class="docutils literal notranslate"><span class="pre">'</span></code>),
+e.g <code class="docutils literal notranslate"><span class="pre">'Sheet</span> <span class="pre">One'!A1:B2</span></code>.
+For simplicity, it is safe to always surround the sheet name with single quotes.</p>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<p>For more information, refer to the <a href="https://developers.google.com/sheets/api/guides/concepts" target="_blank">Google Sheet concept</a>.</p>
+</div>
+<div class="section" id="googlesheet-init">
+<h2>GoogleSheet.__init__<a class="headerlink" href="#googlesheet-init" title="Permalink to this headline">¶</a></h2>
+<p><strong>__init__(
+self,
+creds=None,
+credential_path=&quot;&quot;,
+credential_scopes=[&quot;https://www.googleapis.com/auth/drive&quot;],
+token_prefix=&quot;GoogleDrive_&quot;,
+token_suffix=&quot;&quot;
+)</strong></p>
+<p>Initialize the credential.</p>
+<p>If credential <code class="docutils literal notranslate"><span class="pre">creds</span></code> is provided, this method will use it directly
+if it is valid.</p>
+<p>Otherwise, it will use <code class="docutils literal notranslate"><span class="pre">credential_path</span></code> and <code class="docutils literal notranslate"><span class="pre">credential_scopes</span></code> to
+get the token.</p>
+<p><strong>Args:</strong></p>
+<blockquote>
+<div><p><strong>creds:</strong> <em>None or google.oauth2.credentials.Credentials, default None</em></p>
+<p><strong>credential_path:</strong> <em>String, default ''</em></p>
+<blockquote>
+<div><p>Path to the credential with either 'token.pickle' or
+'credentials.json' in it.</p>
+</div></blockquote>
+<p><strong>credential_scopes:</strong> <em>List of strings, default ['https://www.googleapis.com/auth/drive']</em></p>
+<blockquote>
+<div><p>Scope of the credential. Default scope can
+'See, edit, create, and delete all of your Google Drive files'.
+Details:
+<a class="reference external" href="https://developers.google.com/identity/protocols/oauth2/scopes#sheets">https://developers.google.com/identity/protocols/oauth2/scopes#sheets</a></p>
+</div></blockquote>
+<p><strong>token_prefix:</strong> <em>String, default 'GoogleDrive_'</em></p>
+<blockquote>
+<div><p>Prefix of token file. eg. '{token_prefix}token.pickle'.</p>
+</div></blockquote>
+<p><strong>token_suffix:</strong> <em>String, default ''</em></p>
+<blockquote>
+<div><p>Suffix of token file. eg. 'token{token_suffix}.pickle'.</p>
+</div></blockquote>
+</div></blockquote>
+</div>
+<div class="section" id="googlesheet-create-spreadsheet">
+<h2>GoogleSheet.create_spreadsheet<a class="headerlink" href="#googlesheet-create-spreadsheet" title="Permalink to this headline">¶</a></h2>
+<p><strong>create_spreadsheet(self, spreadsheet_name)</strong></p>
+<p>Creates a spreadsheet, returning the newly created spreadsheet's ID.</p>
+<p>Official API guide:
+<a class="reference external" href="https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets/create">https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets/create</a></p>
+<p><strong>Args:</strong></p>
+<blockquote>
+<div><p><strong>spreadsheet_name:</strong> <em>String</em></p>
+<blockquote>
+<div><p>The name of the spreadsheet.</p>
+</div></blockquote>
+</div></blockquote>
+<p><strong>Return:</strong></p>
+<blockquote>
+<div><p><strong>spreadsheet ID</strong>: String</p>
+</div></blockquote>
+</div>
+<div class="section" id="googlesheet-search-spreadsheet">
+<h2>GoogleSheet.search_spreadsheet<a class="headerlink" href="#googlesheet-search-spreadsheet" title="Permalink to this headline">¶</a></h2>
+<p><strong>search_spreadsheet(self, spreadsheet_name)</strong></p>
+<p>Searche for the spreadsheet in Google Drive and return the spreadsheet ID.</p>
+<p>Since it is using Google Drive API, the scope must include reading
+files in Google Drive.</p>
+<p>If you want customized query, use <code class="docutils literal notranslate"><span class="pre">GoogleDrive.search_file()</span></code> instead.</p>
+<p><strong>Args:</strong></p>
+<blockquote>
+<div><p><strong>spreadsheet_name:</strong> <em>String</em></p>
+<blockquote>
+<div><p>The name of the spreadsheet. There is no file extension.</p>
+</div></blockquote>
+</div></blockquote>
+<p><strong>Return:</strong></p>
+<blockquote>
+<div><p><strong>Dictionary</strong></p>
+<ul class="simple">
+<li><p>Key: Spreadsheet name.</p></li>
+<li><p>Value: List of spreadsheet ID in case there are duplicate file names.</p></li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="googlesheet-get-spreadsheet-property">
+<h2>GoogleSheet.get_spreadsheet_property<a class="headerlink" href="#googlesheet-get-spreadsheet-property" title="Permalink to this headline">¶</a></h2>
+<p><strong>get_spreadsheet_property(self, spreadsheet_id)</strong></p>
+<p>Get spreadsheet property and sheet property.</p>
+<p>Spreadsheet property includes the title, locale, timeZone, defaultFormat, etc.</p>
+<p>Sheet property includes sheetID, sheetIndex, sheetRowCount, and sheetColCount.</p>
+<p>Official API guide:
+<a class="reference external" href="https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets/get">https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets/get</a></p>
+<p><strong>Args:</strong></p>
+<blockquote>
+<div><p><strong>spreadsheet_id:</strong> <em>String</em></p>
+<blockquote>
+<div><p>Spreadsheet ID.</p>
+</div></blockquote>
+</div></blockquote>
+<p><strong>Return:</strong></p>
+<blockquote>
+<div><p><strong>Tuple: (spreadsheet_property, sheet_property)</strong></p>
+<blockquote>
+<div><ul>
+<li><p><strong>spreadsheet_property:</strong> <em>Dictionary</em></p>
+<p>The entire spreadsheet property. It is the superset of the sheet property.</p>
+<p>Structure of the response:
+<a class="reference external" href="https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets#Spreadsheet">https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets#Spreadsheet</a></p>
+</li>
+<li><p><strong>sheet_property:</strong> <em>Dictionary</em></p>
+<ul>
+<li><p>sheetId: Dictionary, key: sheet name, value: sheet ID</p>
+<p>The unique ID of each sheet regardless of position.</p>
+</li>
+<li><p>sheetIndex: Dictionary, key: sheet name, value: sheet index</p>
+<p>The position of the sheet starting from 0.</p>
+</li>
+<li><p>sheetRowCount: Dictionary, key: sheet name, value: sheet row count</p>
+<p>The numbder of rows in sheet. Note that this is not the number of
+rows that contains data.It is the boundary of the sheet.</p>
+</li>
+<li><p>sheetColCount: Dictionary, key: sheet name, value: sheet column count</p>
+<p>The numbder of columns in sheet. Note that this is not the number
+of columns that contains data.It is the boundary of the sheet.</p>
+</li>
+</ul>
+</li>
+</ul>
+</div></blockquote>
+</div></blockquote>
+</div>
+<div class="section" id="googlesheet-download-spreadsheet">
+<h2>GoogleSheet.download_spreadsheet<a class="headerlink" href="#googlesheet-download-spreadsheet" title="Permalink to this headline">¶</a></h2>
+<p><strong>download_spreadsheet(self, spreadsheet_id: str, save_as=&quot;&quot;)</strong></p>
+<p>Download the spreadsheet by given the spreadsheet ID
+and return a file pointer or save it as a file.</p>
+<p>Supported file formats: .xlsx, .csv, .pdf.
+For unsupported file formats i.e. Open Office sheet,
+sheet only, and HTML, use <code class="docutils literal notranslate"><span class="pre">GoogleDrive.download_file()</span></code>.</p>
+<p>Official API guide:
+<a class="reference external" href="https://developers.google.com/drive/api/v3/manage-downloads#download_a_file_stored_on_google_drive">https://developers.google.com/drive/api/v3/manage-downloads#download_a_file_stored_on_google_drive</a></p>
+<p><strong>Args:</strong></p>
+<blockquote>
+<div><p><strong>spreadsheet_id:</strong> <em>String</em></p>
+<blockquote>
+<div><p>The spreadsheet ID.</p>
+</div></blockquote>
+<p><strong>save_as:</strong> <em>String, default ''</em></p>
+<blockquote>
+<div><ul class="simple">
+<li><p>'': Return a file pointer.</p></li>
+<li><p>'Excel': Save as '{Spreadsheet name}.xlsx'. Return None.</p></li>
+<li><p>'CSV': Save as '{Spreadsheet name}.csv'. Return None.
+First sheet only.</p></li>
+<li><p>'PDF': Save as '{Spreadsheet name}.pdf'. Return None.</p></li>
+<li><p>'<em>.xlsx': Save as '</em>.xlsx'. Return None.</p></li>
+<li><p>'<em>.csv': Save as '</em>.csv'. Return None.</p></li>
+<li><p>'<em>.pdf': Save as '</em>.pdf'. Return None.</p></li>
+</ul>
+</div></blockquote>
+</div></blockquote>
+<p><strong>Return:</strong></p>
+<blockquote>
+<div><p><strong>None</strong> or <strong>file pointer</strong> depending on the <code class="docutils literal notranslate"><span class="pre">save_as</span></code>.</p>
+</div></blockquote>
+</div>
+<div class="section" id="googlesheet-get-values">
+<h2>GoogleSheet.get_values<a class="headerlink" href="#googlesheet-get-values" title="Permalink to this headline">¶</a></h2>
+<p><strong>def get_values(
+self,
+spreadsheet_id,
+range_,
+value_render_option=None,
+date_time_render_option=None,
+):</strong></p>
+<p>Get a single value, a range of values, and several ranges of values.</p>
+<p>Use <code class="docutils literal notranslate"><span class="pre">GoogleSheet.download_spreadsheet()</span></code> if you want to get the
+entire spreadsheet.</p>
+<p>Official API guide:</p>
+<p>For single range:
+<a class="reference external" href="https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets.values/get">https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets.values/get</a></p>
+<p>For multiple ranges:
+<a class="reference external" href="https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets.values/batchGet">https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets.values/batchGet</a></p>
+<p><strong>Example:</strong></p>
+<blockquote>
+<div><p>Get the entire sheet of <cite>Sheet 1</cite>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">gs</span><span class="o">.</span><span class="n">get_values</span><span class="p">(</span><span class="n">spreadsheet_id</span><span class="p">,</span> <span class="s2">&quot;&#39;Sheet 1&#39;&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Get the value of cell <cite>A5</cite> in <cite>Sheet 1</cite>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">gs</span><span class="o">.</span><span class="n">get_values</span><span class="p">(</span><span class="n">spreadsheet_id</span><span class="p">,</span> <span class="s2">&quot;&#39;Sheet 1&#39;!A5&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div></blockquote>
+<p><strong>Args:</strong></p>
+<blockquote>
+<div><p><strong>spreadsheet_id:</strong> <em>String</em></p>
+<p><strong>range_:</strong> <em>String or List of strings in A1 notation</em></p>
+<blockquote>
+<div><ul>
+<li><p>String: A single sheet, A single range</p></li>
+<li><p>List of strings: Several ranges</p></li>
+<li><p>value_render_option: String, default None</p>
+<p>How values should be represented in the output.
+The default render option is <code class="docutils literal notranslate"><span class="pre">ValueRenderOption.FORMATTED_VALUE</span></code>.
+Details:
+<a class="reference external" href="https://developers.google.com/sheets/api/reference/rest/v4/ValueRenderOption">https://developers.google.com/sheets/api/reference/rest/v4/ValueRenderOption</a></p>
+</li>
+<li><p>date_time_render_option: String, default None
+How dates, times, and durations should be represented in the output.
+Details:
+<a class="reference external" href="https://developers.google.com/sheets/api/reference/rest/v4/ValueRenderOption">https://developers.google.com/sheets/api/reference/rest/v4/ValueRenderOption</a></p></li>
+</ul>
+</div></blockquote>
+</div></blockquote>
+<p><strong>Return:</strong></p>
+<blockquote>
+<div><p><strong>ValueRange</strong> in Dictionary</p>
+<p>Details:
+<a class="reference external" href="https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets.values#resource:-valuerange">https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets.values#resource:-valuerange</a></p>
+</div></blockquote>
+</div>
+<div class="section" id="googlesheet-clear-values">
+<h2>GoogleSheet.clear_values<a class="headerlink" href="#googlesheet-clear-values" title="Permalink to this headline">¶</a></h2>
+<p><strong>clear_values(self, spreadsheet_id: str, range_)</strong></p>
+<p>Clear values from a spreadsheet.</p>
+<p>Only values are cleared -- all other properties of
+the cell (such as formatting, data validation, etc..) are kept.</p>
+<p>Official API guide:
+<a class="reference external" href="https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets.values/clear">https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets.values/clear</a></p>
+<dl>
+<dt><strong>Args:</strong></dt><dd><p><strong>spreadsheet_id:</strong> String
+<strong>range_:</strong> String, A1 notation</p>
+</dd>
+<dt><strong>Return:</strong></dt><dd><p><strong>Dictionary, cleared range</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="s2">&quot;spreadsheetId&quot;</span><span class="p">:</span> <span class="n">string</span><span class="p">,</span>
+<span class="s2">&quot;clearedRange&quot;</span><span class="p">:</span> <span class="n">string</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</dd>
+</dl>
+</div>
+<div class="section" id="googlesheet-update-values">
+<h2>GoogleSheet.update_values<a class="headerlink" href="#googlesheet-update-values" title="Permalink to this headline">¶</a></h2>
+<p><strong>update_values(self, spreadsheet_id, data, value_input_option=&quot;RAW&quot;)</strong></p>
+<p>Sets values in a range of a spreadsheet.</p>
+<p>Official API guide:
+<a class="reference external" href="https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets.values/update">https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets.values/update</a></p>
+<p><strong>Args:</strong></p>
+<blockquote>
+<div><p><strong>spreadsheet_id:</strong> <em>String</em></p>
+<p><strong>data:</strong> <em>ValueRange in Dictionary</em></p>
+<blockquote>
+<div><div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+    <span class="s2">&quot;range&quot;</span><span class="p">:</span> <span class="n">string</span><span class="p">,</span>
+    <span class="s2">&quot;majorDimension&quot;</span><span class="p">:</span> <span class="n">enum</span> <span class="p">(</span><span class="n">Dimension</span><span class="p">),</span>
+    <span class="s2">&quot;values&quot;</span><span class="p">:</span> <span class="p">[</span>
+    <span class="n">array</span>
+    <span class="p">]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Details:
+<a class="reference external" href="https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets.values#ValueRange">https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets.values#ValueRange</a></p>
+</div></blockquote>
+</div></blockquote>
+<p><strong>Return:</strong></p>
+<blockquote>
+<div><p><strong>Dictionary in structure:</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="s2">&quot;spreadsheetId&quot;</span><span class="p">:</span> <span class="n">string</span><span class="p">,</span>
+<span class="s2">&quot;totalUpdatedRows&quot;</span><span class="p">:</span> <span class="n">integer</span><span class="p">,</span>
+<span class="s2">&quot;totalUpdatedColumns&quot;</span><span class="p">:</span> <span class="n">integer</span><span class="p">,</span>
+<span class="s2">&quot;totalUpdatedCells&quot;</span><span class="p">:</span> <span class="n">integer</span><span class="p">,</span>
+<span class="s2">&quot;totalUpdatedSheets&quot;</span><span class="p">:</span> <span class="n">integer</span><span class="p">,</span>
+<span class="s2">&quot;responses&quot;</span><span class="p">:</span> <span class="p">[</span>
+    <span class="p">{</span>
+    <span class="nb">object</span> <span class="p">(</span><span class="n">UpdateValuesResponse</span><span class="p">)</span>
+    <span class="p">}</span>
+<span class="p">]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div></blockquote>
 </div>
 </div>
 
@@ -70,6 +381,14 @@
 <li class="toctree-l1"><a class="reference internal" href="google_drive.html">GoogleDrive</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">GoogleSheet</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#terminology">Terminology</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#googlesheet-init">GoogleSheet.__init__</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#googlesheet-create-spreadsheet">GoogleSheet.create_spreadsheet</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#googlesheet-search-spreadsheet">GoogleSheet.search_spreadsheet</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#googlesheet-get-spreadsheet-property">GoogleSheet.get_spreadsheet_property</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#googlesheet-download-spreadsheet">GoogleSheet.download_spreadsheet</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#googlesheet-get-values">GoogleSheet.get_values</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#googlesheet-clear-values">GoogleSheet.clear_values</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#googlesheet-update-values">GoogleSheet.update_values</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="gmail.html">Gmail</a></li>

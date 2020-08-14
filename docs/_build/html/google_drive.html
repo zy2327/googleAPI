@@ -15,7 +15,7 @@
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="GoogleSheet" href="google_sheet.html" />
-    <link rel="prev" title="Quick Start" href="quickstart.html" />
+    <link rel="prev" title="GoogleCredential" href="google_credential.html" />
    
   <link rel="stylesheet" href="_static/custom.css" type="text/css" />
   
@@ -34,6 +34,179 @@
             
   <div class="section" id="googledrive">
 <h1>GoogleDrive<a class="headerlink" href="#googledrive" title="Permalink to this headline">¶</a></h1>
+<p><code class="docutils literal notranslate"><span class="pre">GoogleDrive()</span></code> is the child class of <code class="docutils literal notranslate"><span class="pre">GoogleCredential()</span></code>.
+It provides an access to the Google Drive files and lets you to
+search, create, read, download files and/or folders.</p>
+<div class="section" id="googledrive-init">
+<h2>GoogleDrive.__init__<a class="headerlink" href="#googledrive-init" title="Permalink to this headline">¶</a></h2>
+<p><strong>__init__(
+self,
+creds=None,
+credential_path=&quot;&quot;,
+credential_scopes=[&quot;https://www.googleapis.com/auth/drive&quot;],
+token_prefix=&quot;GoogleDrive_&quot;,
+token_suffix=&quot;&quot;
+)</strong></p>
+<p>Initialize the credential.</p>
+<p>If credential <code class="docutils literal notranslate"><span class="pre">creds</span></code> is provided, this method will use it directly
+if it is valid.</p>
+<p>Otherwise, it will use <code class="docutils literal notranslate"><span class="pre">credential_path</span></code> and <code class="docutils literal notranslate"><span class="pre">credential_scopes</span></code> to
+get the token.</p>
+<p><strong>Args:</strong></p>
+<blockquote>
+<div><p><strong>creds:</strong> <em>None or google.oauth2.credentials.Credentials, default None</em></p>
+<p><strong>credential_path:</strong> <em>String, default ''</em></p>
+<blockquote>
+<div><p>Path to the credential with either 'token.pickle' or
+'credentials.json' in it.</p>
+</div></blockquote>
+<p><strong>credential_scopes:</strong> <em>List of strings, default ['https://www.googleapis.com/auth/drive']</em></p>
+<blockquote>
+<div><p>Scope of the credential. Default scope can
+'See, edit, create, and delete all of your Google Drive files'.
+Details:
+<a class="reference external" href="https://developers.google.com/identity/protocols/oauth2/scopes#drive">https://developers.google.com/identity/protocols/oauth2/scopes#drive</a></p>
+</div></blockquote>
+<p><strong>token_prefix:</strong> <em>String, default 'GoogleDrive_'</em></p>
+<blockquote>
+<div><p>Prefix of token file. eg. '{token_prefix}token.pickle'.</p>
+</div></blockquote>
+<p><strong>token_suffix:</strong> <em>String, default ''</em></p>
+<blockquote>
+<div><p>Suffix of token file. eg. 'token{token_suffix}.pickle'.</p>
+</div></blockquote>
+</div></blockquote>
+</div>
+<div class="section" id="googledrive-search-file">
+<h2>GoogleDrive.search_file<a class="headerlink" href="#googledrive-search-file" title="Permalink to this headline">¶</a></h2>
+<p><strong>search_file(self, file_name=None, query=&quot;&quot;, spaces=&quot;drive&quot;)</strong></p>
+<p>This function searches the file(s) and/or folder(s) inside
+the Google Drive and returns the file ID.</p>
+<p>If <code class="docutils literal notranslate"><span class="pre">file_name</span></code> is provided, it will search for exactly name.
+Otherwise, customize the search with <code class="docutils literal notranslate"><span class="pre">query</span></code> parameter.</p>
+<p>Official API guide:
+<a class="reference external" href="https://developers.google.com/drive/api/v3/search-files">https://developers.google.com/drive/api/v3/search-files</a></p>
+<p><strong>Args:</strong></p>
+<blockquote>
+<div><p><strong>file_name:</strong> <em>None or String, default None</em></p>
+<blockquote>
+<div><ul class="simple">
+<li><p>String: This methold would search for the file
+that exactly matches the <cite>file_name</cite>.</p></li>
+<li><p>None: It will use the <cite>query</cite> for customized search.</p></li>
+</ul>
+</div></blockquote>
+<p><strong>query:</strong> <em>None or String</em></p>
+<blockquote>
+<div><ul>
+<li><p>None: Return all the files in the <cite>spaces</cite>.</p></li>
+<li><p>String:</p>
+<p><a class="reference external" href="https://developers.google.com/drive/api/v3/search-files#query_string_examples">https://developers.google.com/drive/api/v3/search-files#query_string_examples</a>
+<a class="reference external" href="https://developers.google.com/drive/api/v3/ref-search-terms">https://developers.google.com/drive/api/v3/ref-search-terms</a></p>
+</li>
+</ul>
+<p><strong>spaces:</strong> <em>{'drive', 'appDataFolder', 'photos'}, default: 'drive'</em></p>
+<blockquote>
+<div><p>Details:
+<a class="reference external" href="https://developers.google.com/drive/api/v3/about-files#org">https://developers.google.com/drive/api/v3/about-files#org</a></p>
+</div></blockquote>
+</div></blockquote>
+</div></blockquote>
+<p><strong>Return:</strong></p>
+<blockquote>
+<div><p><strong>Dictionary.</strong></p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Key: File/folder name.</p></li>
+<li><p>Value: List of file/folder ID in case there are duplicate file names.</p></li>
+</ul>
+</div></blockquote>
+</div></blockquote>
+</div>
+<div class="section" id="googledrive-get-file-metadata">
+<h2>GoogleDrive.get_file_metadata<a class="headerlink" href="#googledrive-get-file-metadata" title="Permalink to this headline">¶</a></h2>
+<p><strong>get_file_metadata(self, file_id: str, fields=None)</strong></p>
+<p>Get the file metadata including kind, name, mimeType, etc.</p>
+<p>For details of the return values, visit
+<a class="reference external" href="https://developers.google.com/drive/api/v3/reference/files">https://developers.google.com/drive/api/v3/reference/files</a></p>
+<p><strong>Args:</strong></p>
+<blockquote>
+<div><p><strong>ile_id:</strong> <em>String</em></p>
+<blockquote>
+<div><p>Google Drive File ID. Can be found via <code class="docutils literal notranslate"><span class="pre">search_file()</span></code> method.</p>
+</div></blockquote>
+<p><strong>fields:</strong> <em>None or String, default None</em></p>
+<blockquote>
+<div><ul>
+<li><p>None: Get basic file info: 'id', 'kind', 'name',
+and 'mimeType'.</p></li>
+<li><p>String: Use '*' to get the entire file metadata.
+Use '{xx},{yy},{zz}' to get specific info.</p>
+<p>For example, 'id,fileSize' to get file id and file size.</p>
+<p>Details:
+<a class="reference external" href="https://developers.google.com/drive/api/v3/fields-parameter#formatting_rules_for_the_fields_parameter">https://developers.google.com/drive/api/v3/fields-parameter#formatting_rules_for_the_fields_parameter</a></p>
+</li>
+</ul>
+</div></blockquote>
+</div></blockquote>
+<p><strong>Return:</strong></p>
+<blockquote>
+<div><p><strong>metadata</strong> in dictionary</p>
+</div></blockquote>
+</div>
+<div class="section" id="googledrive-download-file">
+<h2>GoogleDrive.download_file<a class="headerlink" href="#googledrive-download-file" title="Permalink to this headline">¶</a></h2>
+<p><strong>download_file(self, file_id: str, mimeType=None, verbose=0, save_as=None)</strong></p>
+<p>This function downloads the file by given file ID
+and returns a file pointer or saves it as a file.</p>
+<p>It supports two types of downloads:</p>
+<ul class="simple">
+<li><p>Downloads of files stored in Google Drive.</p></li>
+<li><p>Downloads of exported versions of G Suite files
+(Google Docs, Sheets, Slides, and so on) in formats
+that your app can handle.</p></li>
+</ul>
+<p>If you are downloading your own files, ignore the <cite>mimeType</cite> parameter.</p>
+<p>If you are downloading G Suite files, you have to specify the <cite>mimeType</cite>.
+For the format you can choose, visit
+<a class="reference external" href="https://developers.google.com/drive/api/v3/ref-export-formats">https://developers.google.com/drive/api/v3/ref-export-formats</a></p>
+<p><em>Note 1: This method does not support using file name in case there are
+several files with the same name.</em></p>
+<p><em>Note 2: The exported content is limited to 10MB.</em></p>
+<p>Official API guide:
+<a class="reference external" href="https://developers.google.com/drive/api/v3/manage-downloads">https://developers.google.com/drive/api/v3/manage-downloads</a></p>
+<p><strong>Args:</strong></p>
+<blockquote>
+<div><p><strong>file_id:</strong> <em>String</em></p>
+<blockquote>
+<div><p>Google Drive File ID. Can be found via <code class="docutils literal notranslate"><span class="pre">search_file()</span></code> method.</p>
+</div></blockquote>
+<p><strong>mimeType:</strong> <em>None or String, default None</em></p>
+<blockquote>
+<div><p>G Suite file export format.</p>
+</div></blockquote>
+<p><strong>verbose:</strong> <em>{0, 1, 2}, default 0</em></p>
+<blockquote>
+<div><ul class="simple">
+<li><p>0: Suppress all download messages.</p></li>
+<li><p>1: Print successful download message.</p></li>
+<li><p>2: Print download percentage and successful download message.</p></li>
+</ul>
+</div></blockquote>
+<p><strong>save_as:</strong> <em>None or String, default None</em></p>
+<blockquote>
+<div><ul class="simple">
+<li><p>None: Return a file pointer.</p></li>
+<li><p>String: Save the file into the provided pathand return None.
+Make sure the file extension matches.</p></li>
+</ul>
+</div></blockquote>
+</div></blockquote>
+<p><strong>Return:</strong></p>
+<blockquote>
+<div><p><strong>None</strong> or <strong>file pointer</strong>.</p>
+</div></blockquote>
+</div>
 </div>
 
 
@@ -56,7 +229,14 @@
 <p class="caption"><span class="caption-text">Contents:</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quick Start</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">GoogleDrive</a></li>
+<li class="toctree-l1"><a class="reference internal" href="google_credential.html">GoogleCredential</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">GoogleDrive</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#googledrive-init">GoogleDrive.__init__</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#googledrive-search-file">GoogleDrive.search_file</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#googledrive-get-file-metadata">GoogleDrive.get_file_metadata</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#googledrive-download-file">GoogleDrive.download_file</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="google_sheet.html">GoogleSheet</a></li>
 <li class="toctree-l1"><a class="reference internal" href="gmail.html">Gmail</a></li>
 <li class="toctree-l1"><a class="reference internal" href="license.html">License</a></li>
@@ -66,7 +246,7 @@
 <h3>Related Topics</h3>
 <ul>
   <li><a href="index.html">Documentation overview</a><ul>
-      <li>Previous: <a href="quickstart.html" title="previous chapter">Quick Start</a></li>
+      <li>Previous: <a href="google_credential.html" title="previous chapter">GoogleCredential</a></li>
       <li>Next: <a href="google_sheet.html" title="next chapter">GoogleSheet</a></li>
   </ul></li>
 </ul>

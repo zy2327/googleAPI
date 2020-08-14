@@ -14,8 +14,7 @@ class GoogleDrive(GoogleCredential):
         token_prefix="GoogleDrive_",
         token_suffix="",
     ):
-        """
-        Initialize the credential.
+        """Initialize the credential.
         
         If credential `creds` is provided, this method will use it directly 
         if it is valid.

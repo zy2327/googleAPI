@@ -34,6 +34,187 @@
             
   <div class="section" id="gmail">
 <h1>Gmail<a class="headerlink" href="#gmail" title="Permalink to this headline">¶</a></h1>
+<p><code class="docutils literal notranslate"><span class="pre">Gmail()</span></code> is a child class of <code class="docutils literal notranslate"><span class="pre">GoogleCredential()</span></code>.
+It lets you to send email, create draft, and upload attachments.</p>
+<div class="section" id="gmail-init">
+<h2>Gmail.__init__<a class="headerlink" href="#gmail-init" title="Permalink to this headline">¶</a></h2>
+<p><strong>__init__(
+self,
+creds=None,
+credential_path=&quot;&quot;,
+credential_scopes=[&quot;https://mail.google.com/&quot;],
+token_prefix=&quot;Gmail_&quot;,
+token_suffix=&quot;&quot;
+)</strong></p>
+<p>Initialize the credential.</p>
+<p>If credential <code class="docutils literal notranslate"><span class="pre">creds</span></code> is provided, this method will use it directly
+if it is valid.</p>
+<p>Otherwise, it will use <code class="docutils literal notranslate"><span class="pre">credential_path</span></code> and <code class="docutils literal notranslate"><span class="pre">credential_scopes</span></code> to
+get the token.</p>
+<p><strong>Args:</strong></p>
+<blockquote>
+<div><p><strong>creds:</strong> <em>None or google.oauth2.credentials.Credentials, default None</em></p>
+<p><strong>credential_path:</strong> <em>String, default ''</em></p>
+<blockquote>
+<div><p>Path to the credential with either 'token.pickle' or
+'credentials.json' in it.</p>
+</div></blockquote>
+<p><strong>credential_scopes:</strong> <em>List of strings, default ['https://mail.google.com/']</em></p>
+<blockquote>
+<div><p>Scope of the credential. Default scope can
+'See, edit, create, and delete all of your Google Drive files'.
+Details:
+<a class="reference external" href="https://developers.google.com/identity/protocols/oauth2/scopes#gmail">https://developers.google.com/identity/protocols/oauth2/scopes#gmail</a></p>
+</div></blockquote>
+<p><strong>token_prefix:</strong> <em>String, default 'Gmail_'</em></p>
+<blockquote>
+<div><p>Prefix of token file. eg. '{token_prefix}token.pickle'.</p>
+</div></blockquote>
+<p><strong>token_suffix:</strong> <em>String, default ''</em></p>
+<blockquote>
+<div><p>Suffix of token file. eg. 'token{token_suffix}.pickle'.</p>
+</div></blockquote>
+</div></blockquote>
+</div>
+<div class="section" id="gmail-create-message">
+<h2>Gmail.create_message<a class="headerlink" href="#gmail-create-message" title="Permalink to this headline">¶</a></h2>
+<p><strong>create_message(sender, to, subject, message_text)</strong></p>
+<p>Create a message for an email.</p>
+<p><strong>Args:</strong></p>
+<blockquote>
+<div><p><strong>sender:</strong> <em>String</em></p>
+<blockquote>
+<div><p>Email address of the sender.</p>
+</div></blockquote>
+<p><strong>to:</strong> <em>String or List</em></p>
+<blockquote>
+<div><p>Email address of the receiver.</p>
+</div></blockquote>
+<p><strong>subject:</strong> <em>String</em></p>
+<blockquote>
+<div><p>The subject of the email message.</p>
+</div></blockquote>
+<p><strong>message_text:</strong> <em>String</em></p>
+<blockquote>
+<div><p>The text of the email message.</p>
+</div></blockquote>
+</div></blockquote>
+<p><strong>Returns:</strong></p>
+<blockquote>
+<div><p>An object containing a base64url encoded email object.</p>
+</div></blockquote>
+</div>
+<div class="section" id="gmail-create-message-with-attachment">
+<h2>Gmail.create_message_with_attachment<a class="headerlink" href="#gmail-create-message-with-attachment" title="Permalink to this headline">¶</a></h2>
+<p><strong>&#64;staticmethod</strong></p>
+<p><strong>create_message_with_attachment(sender, to, subject, message_text, files)</strong></p>
+<p>Create a message for an email with attachment(s).</p>
+<p><strong>Args:</strong></p>
+<blockquote>
+<div><p><strong>sender:</strong> <em>String</em></p>
+<blockquote>
+<div><p>Email address of the sender.</p>
+</div></blockquote>
+<p><strong>to:</strong> <em>String or List</em></p>
+<blockquote>
+<div><p>Email address(es) of the receiver.</p>
+</div></blockquote>
+<p><strong>subject:</strong> <em>String</em></p>
+<blockquote>
+<div><p>The subject of the email message.</p>
+</div></blockquote>
+<p><strong>message_text:</strong> <em>String</em></p>
+<blockquote>
+<div><p>The text of the email message.</p>
+</div></blockquote>
+<p><strong>files:</strong> <em>String or List or Dictionary</em></p>
+<blockquote>
+<div><p>The name of file(s) to be attached.</p>
+<ul>
+<li><p>String: The name of a single file.</p>
+<p>Use it only when there is one file and
+the file is located at the default path.</p>
+</li>
+<li><p>List: Names of files.</p>
+<p>Use it only when the file is located at
+the default path.</p>
+</li>
+<li><p>Dictionary:</p>
+<ul class="simple">
+<li><p>key: String, path of the files</p></li>
+<li><p>value: List, files within the key</p></li>
+</ul>
+<p>eg.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="s1">&#39;/home/&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;file1&#39;</span><span class="p">,</span><span class="s1">&#39;file2&#39;</span><span class="p">],</span> <span class="s1">&#39;/home/user/&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;file3&#39;</span><span class="p">]}</span>
+</pre></div>
+</div>
+</li>
+</ul>
+</div></blockquote>
+</div></blockquote>
+<p><strong>Returns:</strong></p>
+<blockquote>
+<div><p>An object containing a base64url encoded email object.</p>
+</div></blockquote>
+</div>
+<div class="section" id="gmail-send-email">
+<h2>Gmail.send_email<a class="headerlink" href="#gmail-send-email" title="Permalink to this headline">¶</a></h2>
+<p><strong>send_email(self, sender, to, subject, message_text, files=None)</strong></p>
+<p>Send email with/without attachment.</p>
+<p>If <cite>files</cite> is None, it will generate the message
+using <cite>Gmail.create_message()</cite>.</p>
+<p>Otherwise, it will generate the message using
+<cite>Gmail.create_message_with_attachment()</cite>.</p>
+<p>Official API guide:
+<a class="reference external" href="https://developers.google.com/gmail/api/guides/sending">https://developers.google.com/gmail/api/guides/sending</a></p>
+<p><strong>Args:</strong></p>
+<blockquote>
+<div><p><strong>sender:</strong> <em>String</em></p>
+<blockquote>
+<div><p>Email address of the sender.</p>
+</div></blockquote>
+<p><strong>to:</strong> <em>String or List</em></p>
+<blockquote>
+<div><p>Email address(es) of the receiver.</p>
+</div></blockquote>
+<p><strong>subject:</strong> <em>String</em></p>
+<blockquote>
+<div><p>The subject of the email message.</p>
+</div></blockquote>
+<p><strong>message_text:</strong> <em>String</em></p>
+<blockquote>
+<div><p>The text of the email message.</p>
+</div></blockquote>
+<p><strong>files:</strong> <em>None or String or List or Dictionary, default None</em></p>
+<blockquote>
+<div><p>The name of file(s) to be attached.</p>
+<ul>
+<li><p>None: Send email without attachment.</p></li>
+<li><p>String: The name of a single file.</p>
+<p>Use it only when there is one file and
+the file is located at the default path.</p>
+</li>
+<li><p>List: Names of files.
+Use it only when the file is located at
+the default path.</p></li>
+<li><p>Dictionary:</p>
+<ul class="simple">
+<li><p>key: String, path of the files</p></li>
+<li><p>value: List, files within the key</p></li>
+</ul>
+<p>eg.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="s1">&#39;/home/&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;file1&#39;</span><span class="p">,</span><span class="s1">&#39;file2&#39;</span><span class="p">],</span> <span class="s1">&#39;/home/user/&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;file3&#39;</span><span class="p">]}</span>
+</pre></div>
+</div>
+</li>
+</ul>
+</div></blockquote>
+</div></blockquote>
+<p><strong>Return:</strong></p>
+<blockquote>
+<div><p><strong>Sent Message</strong></p>
+</div></blockquote>
+</div>
 </div>
 
 
@@ -56,9 +237,16 @@
 <p class="caption"><span class="caption-text">Contents:</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="google_credential.html">GoogleCredential</a></li>
 <li class="toctree-l1"><a class="reference internal" href="google_drive.html">GoogleDrive</a></li>
 <li class="toctree-l1"><a class="reference internal" href="google_sheet.html">GoogleSheet</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Gmail</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Gmail</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#gmail-init">Gmail.__init__</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#gmail-create-message">Gmail.create_message</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#gmail-create-message-with-attachment">Gmail.create_message_with_attachment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#gmail-send-email">Gmail.send_email</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="license.html">License</a></li>
 </ul>
 
