@@ -19,6 +19,8 @@ This package utilize [Drive API v3](https://developers.google.com/drive/api/v3/r
 
 ## Documentation
 
+Read the documentation at [https://googleapi.readthedocs.io/en/latest/](https://googleapi.readthedocs.io/en/latest/).
+
 ### Credential
 
 Credential is needed for every API. Thus, `GoogleCredential()` is the base class of all the other classes.
