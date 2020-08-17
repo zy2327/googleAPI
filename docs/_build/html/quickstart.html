@@ -34,6 +34,112 @@
             
   <div class="section" id="quick-start">
 <h1>Quick Start<a class="headerlink" href="#quick-start" title="Permalink to this headline">¶</a></h1>
+<p>This is a python package that handles all the work with Google services,
+including Google Drive, Google Sheet, and Gmail.
+It is a high-level interface of the <a href="https://developers.google.com/apis-explorer" target="_blank">Google API</a>.
+The downside of using the official Google API directly is that its documentation is written in Python 2.x,
+making it hard to follow.</p>
+<p>To use the google API, the first step is to get the 'credentials.json'.
+The most easiest way would be visiting the <a href="https://developers.google.com/drive/api/v3/quickstart/go" target="_blank">Google Drive API Quickstart</a>
+and click the <code class="docutils literal notranslate"><span class="pre">Enable</span> <span class="pre">the</span> <span class="pre">Drive</span> <span class="pre">API</span></code> button in the &quot;Step 1: Turn on the Drive API&quot; section.
+Then voliá, there you go! No need to deal with the project, service account, etc.</p>
+<p>This package utilize <a href="https://developers.google.com/drive/api/v3/reference" target="_blank">Drive API v3</a>, <a href="https://developers.google.com/sheets/api/reference/rest" target="_blank">Google Sheets API v4</a>, <a href="https://developers.google.com/gmail/api/v1/reference/" target="_blank">Gmail API v1</a>.</p>
+<div class="section" id="installation">
+<h2>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">googleAPI</span></code></p>
+</div>
+<div class="section" id="dependencies">
+<h2>Dependencies<a class="headerlink" href="#dependencies" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p>google-api-python-client</p></li>
+<li><p>google-auth-httplib2</p></li>
+<li><p>google-auth-oauthlib</p></li>
+</ul>
+</div>
+<div class="section" id="documentation">
+<h2>Documentation<a class="headerlink" href="#documentation" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="credential">
+<h3>Credential<a class="headerlink" href="#credential" title="Permalink to this headline">¶</a></h3>
+<p>Credential is needed for every API. Thus, <code class="docutils literal notranslate"><span class="pre">GoogleCredential()</span></code> is the base class of all the other classes.</p>
+<p><em>Note: Unless you want to write customized functions, you could skip this section.</em></p>
+<p>Suppose we want to get Google Drive credential with all scopes to write customized functions.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Step 1: import the module</span>
+<span class="kn">from</span> <span class="nn">googleAPI.credential</span> <span class="kn">import</span> <span class="o">*</span>
+
+<span class="c1"># Step 2: Instance `GoogleCredential()` class</span>
+<span class="n">gc</span> <span class="o">=</span> <span class="n">GoogleCredential</span><span class="p">()</span>
+
+<span class="c1"># Step 3: Get credential</span>
+<span class="c1"># `credential_path` is the place where &#39;credentials.json&#39; is stored.</span>
+<span class="c1"># There will be a prompt web page that will download the &#39;token.pickle&#39;</span>
+<span class="c1"># into `credential_path`.</span>
+<span class="n">creds</span> <span class="o">=</span> <span class="n">gc</span><span class="o">.</span><span class="n">credential</span><span class="p">(</span><span class="n">credential_path</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span>
+                    <span class="n">credential_scopes</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;https://www.googleapis.com/auth/drive&#39;</span><span class="p">])</span>
+</pre></div>
+</div>
+<p>The argument <code class="docutils literal notranslate"><span class="pre">credential_scopes</span></code> is required. For all the scopes you can choose,
+visit <a href="https://developers.google.com/identity/protocols/oauth2/scopes" target="_blank">OAuth 2.0 Scopes for Google APIs</a>.</p>
+</div>
+<div class="section" id="googledrive">
+<h3>GoogleDrive<a class="headerlink" href="#googledrive" title="Permalink to this headline">¶</a></h3>
+<p>Google Drive is a cloud storage where you store the files and folder. <code class="docutils literal notranslate"><span class="pre">GoogleDrive()</span></code> enable you to search for file ID, get file metadata, download files, etc.</p>
+<p>Suppose we want to download a .csv file from the Google Drive.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Step 1: import the module</span>
+<span class="kn">from</span> <span class="nn">googleAPI.drive</span> <span class="kn">import</span> <span class="o">*</span>
+
+<span class="c1"># Step 2: Instance `GoogleDrive` class with credential</span>
+<span class="c1"># If this is the first time you use this package, `credential_path` is</span>
+<span class="c1"># the place where &#39;credentials.json&#39; is stored. There will be a prompt</span>
+<span class="c1"># web page that will download the &#39;GoogleDrive_token.pickle&#39; into `credential_path`.</span>
+<span class="c1"># If you already have &#39;GoogleDrive_token.pickle&#39; file, `credential_path`</span>
+<span class="c1"># is the place where it is stored.</span>
+<span class="c1"># If you already have the credential in the run time, use `creds` argument.</span>
+<span class="n">gd</span> <span class="o">=</span> <span class="n">GoogleDrive</span><span class="p">(</span><span class="n">credential_path</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+
+<span class="c1"># Step 3: Search the file ID in Google Drive</span>
+<span class="c1"># Use the file name to locate the file ID. File ID is the unique identifier</span>
+<span class="c1"># that Google API uses.</span>
+<span class="c1"># You can also find the file ID inside the link if you open the file in a</span>
+<span class="c1"># web page. The ID is the characters after `/d/{ID}`.</span>
+<span class="n">file_id</span> <span class="o">=</span> <span class="n">gd</span><span class="o">.</span><span class="n">search_file</span><span class="p">(</span><span class="s1">&#39;test.csv&#39;</span><span class="p">)</span>
+
+<span class="c1"># Step 4: Download the file</span>
+<span class="c1"># If you want to download the file into run time as a file pointer, leave the</span>
+<span class="c1"># `save_as` argument blank.</span>
+<span class="c1"># If you want to download it as a file, specify the `save_as` argument.</span>
+<span class="n">gd</span><span class="o">.</span><span class="n">download_file</span><span class="p">(</span><span class="n">file_id</span><span class="p">[</span><span class="s1">&#39;test.csv&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">save_as</span><span class="o">=</span><span class="s1">&#39;test.csv&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="googlesheet">
+<h3>GoogleSheet<a class="headerlink" href="#googlesheet" title="Permalink to this headline">¶</a></h3>
+<p>Suppose we want to download a GoogleSheet named 'Google Sheet 1' as an Microsoft Excel file 'Google Sheet 1.xlsx'.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Step 1: import the module</span>
+<span class="kn">from</span> <span class="nn">googleAPI.sheet</span> <span class="kn">import</span> <span class="o">*</span>
+
+<span class="c1"># Step 2: Instance `GoogleSheet` class with credential</span>
+<span class="n">gs</span> <span class="o">=</span> <span class="n">GoogleSheet</span><span class="p">(</span><span class="n">credential_path</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+
+<span class="c1"># Step 3: Find the Google Sheet ID using spreadsheet name</span>
+<span class="c1"># The result of the `GoogleSheet.search_spreadsheet()` is</span>
+<span class="c1"># saved in a list inside a dictionary in line with the</span>
+<span class="c1"># `GoogleDrive.search_files()`</span>
+<span class="n">spreadsheet_id</span> <span class="o">=</span> <span class="n">gs</span><span class="o">.</span><span class="n">search_spreadsheet</span><span class="p">(</span><span class="s2">&quot;Google Sheet 1&quot;</span><span class="p">)[</span>
+            <span class="s2">&quot;Google Sheet 1&quot;</span>
+        <span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+
+<span class="c1"># Step 4: Download the Google Sheet</span>
+<span class="n">gs</span><span class="o">.</span><span class="n">download_spreadsheet</span><span class="p">(</span><span class="n">spreadsheet_id</span><span class="p">,</span>
+                        <span class="n">save_as</span><span class="o">=</span><span class="s2">&quot;Google Sheet 1.xlsx&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Suppose we already have the spreadsheet ID and we just want to get the values
+from a particular sheet <cite>Sheet1</cite>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">values</span> <span class="o">=</span> <span class="n">gs</span><span class="o">.</span><span class="n">get_values</span><span class="p">(</span><span class="n">spreadsheet_id</span><span class="p">,</span> <span class="n">range_</span><span class="o">=</span><span class="s2">&quot;&#39;Sheet1&#39;&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
 </div>
 
 
@@ -55,7 +161,12 @@
 <h3>Navigation</h3>
 <p class="caption"><span class="caption-text">Contents:</span></p>
 <ul class="current">
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Quick Start</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Quick Start</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#installation">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#dependencies">Dependencies</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#documentation">Documentation</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="google_credential.html">GoogleCredential</a></li>
 <li class="toctree-l1"><a class="reference internal" href="google_drive.html">GoogleDrive</a></li>
 <li class="toctree-l1"><a class="reference internal" href="google_sheet.html">GoogleSheet</a></li>
