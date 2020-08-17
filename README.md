@@ -6,7 +6,6 @@ To use the google API, the first step is to get the 'credentials.json'. The most
 
 This package utilize [Drive API v3](https://developers.google.com/drive/api/v3/reference), [Google Sheets API v4](https://developers.google.com/sheets/api/reference/rest), [Gmail API v1](https://developers.google.com/gmail/api/v1/reference/).
 
-
 ## Installation
 
 `pip install googleAPI`
