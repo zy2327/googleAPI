@@ -1,7 +1,5 @@
 # Google API
 
-__Not yet released.__
-
 This is a python package that handles all the work with Google services, including Google Drive, Google Sheet, and Gmail. It is a high-level interface of the [Google API](https://developers.google.com/apis-explorer). The downside of using the official Google API directly is that its documentation is written in Python 2.x, making it hard to follow.
 
 To use the google API, the first step is to get the 'credentials.json'. The most easiest way would be visiting the [Google Drive API Quickstart](https://developers.google.com/drive/api/v3/quickstart/go) and click the `Enable the Drive API` button in the "Step 1: Turn on the Drive API" section. Then voliá, there you go! No need to deal with the project, service account, etc.
@@ -82,15 +80,33 @@ gd.download_file(file_id['test.csv'][0], save_as='test.csv')
 
 ### GoogleSheet
 
+Suppose we want to download a GoogleSheet named `Google Sheet 1` as an Microsoft Excel file `Google Sheet 1.xlsx`.
 
+``` python
+# Step 1: import the module
+from googleAPI.sheet import *
 
-### Gmail
+# Step 2: Instance `GoogleSheet` class with credential
+gs = GoogleSheet(credential_path='')
 
-Gmail API enables you to create drafts, send emails, upload attachments, etc. It is even more powerful witht the help of Python. You can skip the Chartio/Looker/Tableu scheduler and customized the email content and attachments.
+# Step 3: Find the Google Sheet ID using spreadsheet name
+# The result of the `GoogleSheet.search_spreadsheet()` is
+# saved in a list inside a dictionary in line with the
+# `GoogleDrive.search_files()`
+spreadsheet_id = gs.search_spreadsheet("Google Sheet 1")[
+            "Google Sheet 1"
+        ][0]
 
+# Step 4: Download the Google Sheet
+gs.download_spreadsheet(spreadsheet_id, 
+                        save_as="Google Sheet 1.xlsx")
+```
 
-
-
+Suppose we already have the spreadsheet ID and we just want to get the values
+from a particular sheet `Sheet1`.
+``` python
+values = gs.get_values(spreadsheet_id, range_="'Sheet1'")
+```
 
 
 
