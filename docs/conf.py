@@ -52,3 +52,7 @@ html_static_path = ["_static"]
 
 # Disable SmartQuotes
 smartquotes = False
+
+# Master doc
+master_doc = "index"
+
