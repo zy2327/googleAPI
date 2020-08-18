@@ -1,4 +1,4 @@
-# Google API
+# googleAPI
 
 [![PyPI Latest Release](https://img.shields.io/pypi/v/googleAPI.svg)](https://pypi.org/project/googleAPI/)
 [![License](https://img.shields.io/pypi/l/googleAPI.svg)](https://github.com/zy2327/googleAPI/blob/master/LICENSE)
