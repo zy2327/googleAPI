@@ -2,7 +2,7 @@
 
 [![PyPI Latest Release](https://img.shields.io/pypi/v/googleAPI.svg)](https://pypi.org/project/googleAPI/)
 [![License](https://img.shields.io/pypi/l/googleAPI.svg)](https://github.com/zy2327/googleAPI/blob/master/LICENSE)
-[![Downloads](https://https://img.shields.io/pypi/dm/googleAPI.svg?style=flat)](https://github.com/zy2327/googleAPI/)
+[![Downloads](https://img.shields.io/pypi/dm/googleAPI.svg)](https://github.com/zy2327/googleAPI/)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
 This is a python package that handles all the work with Google services, including Google Drive, Google Sheet, and Gmail. It is a high-level interface of the [Google API](https://developers.google.com/apis-explorer). The downside of using the official Google API directly is that its documentation is written in Python 2.x, making it hard to follow.
